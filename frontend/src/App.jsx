@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Dashboard/Sidebar';
 import Navbar from './components/Dashboard/Navbar';
 import Modal from './components/UI/Modal';
@@ -12,49 +12,22 @@ import CreateForm from './pages/CreateForm';
 import Submissions from './pages/Submissions';
 import { useWebflow } from './hooks/useWebflow';
 import { getWebflowAuthUrl } from './services/webflow';
-import { Globe, CheckCircle2, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Globe, ExternalLink } from 'lucide-react';
 
-const ProtectedLayout = ({ user, onLogout, onOpenConnectModal }) => {
-  if (!user) return <Navigate to="/login" replace />;
-
-  return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100">
-      <Sidebar connectedSiteId={user.webflowSiteId} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Navbar user={user} onLogout={onLogout} onOpenConnectModal={onOpenConnectModal} />
-        <main className="flex-1 p-8 overflow-y-auto">
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard user={user} onOpenConnectModal={onOpenConnectModal} />} />
-            <Route path="/forms" element={<Forms />} />
-            <Route path="/forms/create" element={<CreateForm />} />
-            <Route path="/forms/edit/:id" element={<CreateForm />} />
-            <Route path="/submissions" element={<Submissions />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default function App() {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('flowform_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-
+const ProtectedLayout = ({ user, setUser, onLogout }) => {
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [selectedPresetSite, setSelectedPresetSite] = useState('site_saas_landing');
   const [customSiteId, setCustomSiteId] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState(null);
 
-  const { connectSite, sites } = useWebflow(user);
+  const { connectSite } = useWebflow(user);
 
-  const handleLogout = () => {
-    localStorage.removeItem('flowform_token');
-    localStorage.removeItem('flowform_user');
-    setUser(null);
+  if (!user) return <Navigate to="/login" replace />;
+
+  const handleOpenModal = () => {
+    setConnectError(null);
+    setIsConnectModalOpen(true);
   };
 
   const handleConnectSubmit = async (e) => {
@@ -94,25 +67,21 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={(u) => setUser(u)} />
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <ProtectedLayout
-              user={user}
-              onLogout={handleLogout}
-              onOpenConnectModal={() => setIsConnectModalOpen(true)}
-            />
-          }
-        />
-      </Routes>
+    <div className="flex min-h-screen bg-slate-950 text-slate-100 relative">
+      <Sidebar connectedSiteId={user.webflowSiteId} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Navbar user={user} onLogout={onLogout} onConnectWebflow={handleOpenModal} />
+        <main className="flex-1 p-8 overflow-y-auto">
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard user={user} onOpenConnectModal={handleOpenModal} />} />
+            <Route path="/forms" element={<Forms />} />
+            <Route path="/forms/create" element={<CreateForm />} />
+            <Route path="/forms/edit/:id" element={<CreateForm />} />
+            <Route path="/submissions" element={<Submissions />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </main>
+      </div>
 
       {/* Webflow Site Connect Modal */}
       <Modal
@@ -185,6 +154,42 @@ export default function App() {
           </div>
         </form>
       </Modal>
+    </div>
+  );
+};
+
+export default function App() {
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('flowform_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem('flowform_token');
+    localStorage.removeItem('flowform_user');
+    setUser(null);
+  };
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={(u) => setUser(u)} />
+          }
+        />
+        <Route
+          path="/*"
+          element={
+            <ProtectedLayout
+              user={user}
+              setUser={setUser}
+              onLogout={handleLogout}
+            />
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }
