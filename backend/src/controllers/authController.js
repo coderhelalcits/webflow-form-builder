@@ -111,6 +111,15 @@ const getMe = async (req, res) => {
 };
 
 /**
+ * @desc    Get Webflow OAuth Redirect URL
+ * @route   GET /api/auth/webflow/url
+ */
+const getWebflowAuthUrl = (req, res) => {
+  const url = WebflowService.getAuthUrl();
+  res.json({ success: true, url });
+};
+
+/**
  * @desc    Connect Webflow Site (OAuth callback or manual linking)
  * @route   POST /api/auth/webflow/connect
  */
@@ -134,7 +143,7 @@ const connectWebflow = async (req, res, next) => {
     res.json({
       success: true,
       message: 'Webflow site connected successfully.',
-      webflowSiteId: updatedUser.webflowSiteId
+      webflowSiteId: updatedUser?.webflowSiteId || targetSiteId
     });
   } catch (error) {
     next(error);
@@ -145,5 +154,6 @@ module.exports = {
   register,
   login,
   getMe,
+  getWebflowAuthUrl,
   connectWebflow
 };

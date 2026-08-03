@@ -11,7 +11,8 @@ import Forms from './pages/Forms';
 import CreateForm from './pages/CreateForm';
 import Submissions from './pages/Submissions';
 import { useWebflow } from './hooks/useWebflow';
-import { Globe, CheckCircle2 } from 'lucide-react';
+import { getWebflowAuthUrl } from './services/webflow';
+import { Globe, CheckCircle2, ExternalLink, ShieldCheck } from 'lucide-react';
 
 const ProtectedLayout = ({ user, onLogout, onOpenConnectModal }) => {
   if (!user) return <Navigate to="/login" replace />;
@@ -43,10 +44,12 @@ export default function App() {
   });
 
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
-  const [inputSiteId, setInputSiteId] = useState('');
+  const [selectedPresetSite, setSelectedPresetSite] = useState('site_saas_landing');
+  const [customSiteId, setCustomSiteId] = useState('');
   const [connecting, setConnecting] = useState(false);
+  const [connectError, setConnectError] = useState(null);
 
-  const { connectSite } = useWebflow(user);
+  const { connectSite, sites } = useWebflow(user);
 
   const handleLogout = () => {
     localStorage.removeItem('flowform_token');
@@ -56,18 +59,37 @@ export default function App() {
 
   const handleConnectSubmit = async (e) => {
     e.preventDefault();
-    if (!inputSiteId) return;
+    setConnectError(null);
+
+    const targetId = customSiteId.trim() || selectedPresetSite;
+    if (!targetId) {
+      setConnectError('Please select or enter a Webflow Site ID.');
+      return;
+    }
 
     setConnecting(true);
-    const success = await connectSite(inputSiteId);
+    const success = await connectSite(targetId);
     setConnecting(false);
 
     if (success) {
-      const updatedUser = { ...user, webflowSiteId: inputSiteId };
+      const updatedUser = { ...user, webflowSiteId: targetId };
       setUser(updatedUser);
       localStorage.setItem('flowform_user', JSON.stringify(updatedUser));
       setIsConnectModalOpen(false);
-      setInputSiteId('');
+      setCustomSiteId('');
+    } else {
+      setConnectError('Failed to link Webflow site. Please try again.');
+    }
+  };
+
+  const handleOAuthConnect = async () => {
+    try {
+      const res = await getWebflowAuthUrl();
+      if (res.url) {
+        window.location.href = res.url;
+      }
+    } catch (err) {
+      setConnectError('Webflow OAuth client is in development mode.');
     }
   };
 
@@ -96,31 +118,70 @@ export default function App() {
       <Modal
         isOpen={isConnectModalOpen}
         onClose={() => setIsConnectModalOpen(false)}
-        title="Connect Webflow Site"
+        title="Connect Webflow Project"
       >
         <form onSubmit={handleConnectSubmit} className="space-y-5">
           <div className="flex items-center gap-3 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300">
-            <Globe className="w-5 h-5 flex-shrink-0" />
+            <Globe className="w-5 h-5 flex-shrink-0 text-indigo-400" />
             <p>
-              Link your Webflow Site ID (found in Webflow Dashboard Site Settings) to connect forms directly.
+              Link your Webflow Site ID to publish custom form schemas directly to your Webflow project.
             </p>
           </div>
 
-          <Input
-            label="Webflow Site ID"
-            placeholder="e.g. 64aef291bc90aef12345"
-            value={inputSiteId}
-            onChange={(e) => setInputSiteId(e.target.value)}
-            required
-          />
+          {connectError && (
+            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-xs font-semibold text-rose-400">
+              {connectError}
+            </div>
+          )}
 
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" type="button" onClick={() => setIsConnectModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={connecting}>
-              Connect Webflow Site
-            </Button>
+          {/* Quick Select Webflow Site */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              Select Detected Webflow Project
+            </label>
+            <select
+              value={selectedPresetSite}
+              onChange={(e) => {
+                setSelectedPresetSite(e.target.value);
+                setCustomSiteId('');
+              }}
+              className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition cursor-pointer"
+            >
+              <option value="site_saas_landing">FlowForm SaaS Landing Page (site_saas_landing)</option>
+              <option value="site_design_agency">My Webflow Agency Site (site_design_agency)</option>
+              <option value="custom">Custom Webflow Site ID...</option>
+            </select>
+          </div>
+
+          {/* Custom Site ID Input */}
+          {selectedPresetSite === 'custom' && (
+            <Input
+              label="Custom Webflow Site ID"
+              placeholder="e.g. 64aef291bc90aef12345"
+              value={customSiteId}
+              onChange={(e) => setCustomSiteId(e.target.value)}
+              required
+            />
+          )}
+
+          {/* OAuth Redirect Action */}
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handleOAuthConnect}
+              className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition"
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> Connect via Webflow OAuth
+            </button>
+
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" type="button" onClick={() => setIsConnectModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" loading={connecting}>
+                Connect Site
+              </Button>
+            </div>
           </div>
         </form>
       </Modal>
