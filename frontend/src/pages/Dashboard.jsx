@@ -5,6 +5,7 @@ import SubmissionTable from '../components/Submissions/SubmissionTable';
 import SubmissionView from '../components/Submissions/SubmissionView';
 import Button from '../components/UI/Button';
 import api from '../services/api';
+import { getWebflowSiteName } from '../utils/helpers';
 import { FileText, Inbox, PlusCircle, Globe, Activity } from 'lucide-react';
 
 const Dashboard = ({ user, onOpenConnectModal }) => {
@@ -31,6 +32,8 @@ const Dashboard = ({ user, onOpenConnectModal }) => {
       setLoading(false);
     }
   };
+
+  const connectedSiteName = getWebflowSiteName(user?.webflowSiteId);
 
   return (
     <div className="space-y-8">
@@ -65,15 +68,15 @@ const Dashboard = ({ user, onOpenConnectModal }) => {
           color="emerald"
         />
         <StatsCard
-          title="Webflow Status"
-          value={user?.webflowSiteId ? 'Connected' : 'Unlinked'}
+          title="Webflow Project"
+          value={connectedSiteName || 'Unlinked'}
           icon={Globe}
           color={user?.webflowSiteId ? 'purple' : 'amber'}
         />
       </div>
 
-      {/* Webflow Quick Connect Callout if not linked */}
-      {!user?.webflowSiteId && (
+      {/* Webflow Quick Connect Callout */}
+      {!user?.webflowSiteId ? (
         <div className="p-6 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
@@ -86,6 +89,21 @@ const Dashboard = ({ user, onOpenConnectModal }) => {
           </div>
           <Button variant="secondary" size="sm" onClick={onOpenConnectModal}>
             Connect Now
+          </Button>
+        </div>
+      ) : (
+        <div className="p-6 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-200">Active Webflow Site: {connectedSiteName}</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Site ID: {user.webflowSiteId} | Status: Synced & Ready</p>
+            </div>
+          </div>
+          <Button variant="secondary" size="sm" onClick={onOpenConnectModal}>
+            Change Site
           </Button>
         </div>
       )}

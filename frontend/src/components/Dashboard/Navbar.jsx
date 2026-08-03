@@ -1,7 +1,10 @@
 import React from 'react';
 import { LogOut, User, Globe } from 'lucide-react';
+import { getWebflowSiteName } from '../../utils/helpers';
 
 const Navbar = ({ user, onLogout, onConnectWebflow }) => {
+  const siteName = getWebflowSiteName(user?.webflowSiteId);
+
   return (
     <header className="h-16 border-b border-slate-800 glass-nav px-8 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center gap-3">
@@ -14,10 +17,10 @@ const Navbar = ({ user, onLogout, onConnectWebflow }) => {
         {/* Connect Webflow Action */}
         <button
           onClick={onConnectWebflow}
-          className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+          className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition max-w-xs truncate"
         >
-          <Globe className="w-3.5 h-3.5 text-indigo-400" />
-          {user?.webflowSiteId ? 'Webflow Linked' : 'Connect Webflow'}
+          <Globe className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+          <span className="truncate">{user?.webflowSiteId ? `Site: ${siteName}` : 'Connect Webflow'}</span>
         </button>
 
         {/* User Info */}

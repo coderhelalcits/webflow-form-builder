@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Inbox, PlusCircle, ExternalLink, Zap } from 'lucide-react';
+import { LayoutDashboard, FileText, Inbox, PlusCircle, Globe, Zap } from 'lucide-react';
+import { getWebflowSiteName } from '../../utils/helpers';
 
 const Sidebar = ({ connectedSiteId }) => {
   const navItems = [
@@ -9,6 +10,8 @@ const Sidebar = ({ connectedSiteId }) => {
     { name: 'Submissions', path: '/submissions', icon: Inbox },
     { name: 'Create Form', path: '/forms/create', icon: PlusCircle }
   ];
+
+  const siteName = getWebflowSiteName(connectedSiteId);
 
   return (
     <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col min-h-screen sticky top-0">
@@ -49,11 +52,11 @@ const Sidebar = ({ connectedSiteId }) => {
       {/* Webflow Site Status Footer */}
       <div className="p-4 m-4 rounded-xl glass-card bg-slate-800/40 border border-slate-800">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Webflow Status</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Connected Site</span>
           <span className={`w-2 h-2 rounded-full ${connectedSiteId ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
         </div>
-        <p className="text-xs text-slate-300 font-medium truncate">
-          {connectedSiteId ? `Connected: ${connectedSiteId}` : 'No Webflow site linked'}
+        <p className="text-xs text-slate-200 font-bold truncate">
+          {connectedSiteId ? siteName : 'No site linked'}
         </p>
       </div>
     </aside>

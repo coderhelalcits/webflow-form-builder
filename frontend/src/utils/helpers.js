@@ -21,6 +21,22 @@ export const generateId = (prefix = 'field') => {
 };
 
 /**
+ * Webflow Site Name Resolver
+ */
+export const WEBFLOW_PRESET_SITES = {
+  'site_saas_landing': { name: 'FlowForm SaaS Landing Page', domain: 'flowform.webflow.io' },
+  'site_design_agency': { name: 'My Webflow Agency Site', domain: 'agency.webflow.io' }
+};
+
+export const getWebflowSiteName = (siteId) => {
+  if (!siteId) return null;
+  if (WEBFLOW_PRESET_SITES[siteId]) {
+    return WEBFLOW_PRESET_SITES[siteId].name;
+  }
+  return `Webflow Site (${siteId.length > 12 ? siteId.substring(0, 12) + '...' : siteId})`;
+};
+
+/**
  * Supported field type definitions for Form Builder
  */
 export const FIELD_TYPES = [
@@ -62,7 +78,8 @@ export const createDefaultField = (type) => {
  * Generate Webflow HTML/JS embed code snippet
  */
 export const generateEmbedCode = (formId, apiHost = 'http://localhost:5000') => {
+  const host = import.meta.env?.VITE_API_URL || apiHost;
   return `<!-- FlowForm Embed Code for Webflow -->
 <div data-flowform="${formId}"></div>
-<script src="${apiHost}/flowform.js" async></script>`;
+<script src="${host}/flowform.js" async></script>`;
 };
