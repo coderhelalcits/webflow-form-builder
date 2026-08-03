@@ -20,7 +20,7 @@ const Navbar = ({ user, onLogout, onConnectWebflow }) => {
           className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition max-w-xs truncate"
         >
           <Globe className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
-          <span className="truncate">{user?.webflowSiteId ? `Site: ${siteName}` : 'Connect Webflow'}</span>
+          <span className="truncate">{user?.webflowSiteId ? siteName : 'Connect Webflow'}</span>
         </button>
 
         {/* User Info */}

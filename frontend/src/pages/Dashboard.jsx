@@ -68,7 +68,7 @@ const Dashboard = ({ user, onOpenConnectModal }) => {
           color="emerald"
         />
         <StatsCard
-          title="Webflow Project"
+          title="Connected Website"
           value={connectedSiteName || 'Unlinked'}
           icon={Globe}
           color={user?.webflowSiteId ? 'purple' : 'amber'}
@@ -84,7 +84,7 @@ const Dashboard = ({ user, onOpenConnectModal }) => {
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-200">Connect Webflow Site</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Link your Webflow project ID to seamlessly sync form schemas.</p>
+              <p className="text-xs text-slate-400 mt-0.5">Link your Webflow website to seamlessly sync form schemas.</p>
             </div>
           </div>
           <Button variant="secondary" size="sm" onClick={onOpenConnectModal}>
@@ -98,12 +98,12 @@ const Dashboard = ({ user, onOpenConnectModal }) => {
               <Globe className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-200">Active Webflow Site: {connectedSiteName}</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Site ID: {user.webflowSiteId} | Status: Synced & Ready</p>
+              <h3 className="text-sm font-bold text-slate-200">Connected Website: {connectedSiteName}</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Status: Connected, Synced & Active</p>
             </div>
           </div>
           <Button variant="secondary" size="sm" onClick={onOpenConnectModal}>
-            Change Site
+            Change Website
           </Button>
         </div>
       )}

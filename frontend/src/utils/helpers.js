@@ -21,7 +21,7 @@ export const generateId = (prefix = 'field') => {
 };
 
 /**
- * Webflow Site Name Resolver
+ * Webflow Site Name Resolver (Clean Website Name only)
  */
 export const WEBFLOW_PRESET_SITES = {
   'site_saas_landing': { name: 'FlowForm SaaS Landing Page', domain: 'flowform.webflow.io' },
@@ -33,7 +33,7 @@ export const getWebflowSiteName = (siteId) => {
   if (WEBFLOW_PRESET_SITES[siteId]) {
     return WEBFLOW_PRESET_SITES[siteId].name;
   }
-  return `Webflow Site (${siteId.length > 12 ? siteId.substring(0, 12) + '...' : siteId})`;
+  return 'Custom Webflow Project';
 };
 
 /**
