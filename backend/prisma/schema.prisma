@@ -1,0 +1,42 @@
+// Prisma Schema for FlowForm SaaS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password      String
+  webflowSiteId String?
+  createdAt     DateTime @default(now())
+
+  forms         Form[]
+}
+
+model Form {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  fields    Json     @default("[]")
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id        String   @id @default(uuid())
+  formId    String
+  data      Json
+  createdAt DateTime @default(now())
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+}

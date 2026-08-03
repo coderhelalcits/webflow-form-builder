@@ -1,0 +1,10 @@
+{
+  "name": "webflow-form-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FlowForm - Webflow Form Builder SaaS application workspace",
+  "scripts": {
+    "start:backend": "npm run dev --prefix backend",
+    "start:frontend": "npm run dev --prefix frontend"
+  }
+}
